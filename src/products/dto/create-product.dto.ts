@@ -1,5 +1,5 @@
 export class CreateProductDto {
   name: string;
-  photo: Buffer;
+  photo: string;
   price: number;
 }
