@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-slim
 
 WORKDIR /home/node/app
 
@@ -6,9 +6,9 @@ COPY . .
 
 RUN apt-get update -y && apt-get install -y openssl
 
-RUN npm install
+# RUN npm install
 
-RUN npx prisma generate
+# RUN npx prisma generate
 
 RUN npm run build
 
