@@ -21,25 +21,6 @@ model Users {
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 }
-model Orders {
-  id             Int       @default(autoincrement()) @id
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  user           Users @relation(fields: [user_id], references: [id])
-  user_id        Int @unique
-  products       OrderItems[]
-}
-
-model OrderItems {
-  id             Int       @default(autoincrement()) @id
-  order           Orders @relation(fields: [order_id], references: [id])
-  order_id        Int @unique 
-  product         Products @relation(fields: [product_id], references: [id])
-  product_id      Int @unique 
-  quantity       Int
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-}
 
 model Products {
   id             Int       @default(autoincrement()) @id
@@ -49,4 +30,26 @@ model Products {
   order_items    OrderItems[]
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
+}
+
+model Orders {
+  id             Int       @default(autoincrement()) @id
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  user           Users @relation(fields: [user_id], references: [id])
+  user_id        Int @unique
+  items        OrderItems[]
+}
+
+model OrderItems {
+  order           Orders @relation(fields: [order_id], references: [id])
+  order_id        Int @map("order_id")
+  product         Products @relation(fields: [product_id], references: [id])
+  product_id      Int @map("product_id")
+  quantity        Int? @default(1)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@id([order_id, product_id])
+  @@map("order_items")
 }
