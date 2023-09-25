@@ -1,3 +1,12 @@
+import { IsNotEmpty } from 'class-validator';
+
+type orderItems = {
+  productId: number;
+  quantity: number;
+};
+
 export class CreateOrderDto {
-  user: any;
+  @IsNotEmpty()
+  userId: number;
+  items: orderItems[];
 }
