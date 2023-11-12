@@ -11,7 +11,6 @@ import {
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { CustomHTTPException } from 'src/exception/customHTTP.exception';
 
 @Controller('orders')
 export class OrdersController {
@@ -34,16 +33,13 @@ export class OrdersController {
       if (input.items.some((item) => item.productId === undefined)) {
         throw new Error('You must provide a product id');
       }
+      console.log(input);
       const response = await this.ordersService.create(input);
+      console.log(response);
       return response;
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.message,
-          status: error.status || 400,
-        },
-        error.status || 400,
-      );
+      console.log(error?.log || error.message);
+      throw new HttpException(error.message, error.status || 400);
     }
   }
 
@@ -55,6 +51,12 @@ export class OrdersController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
+      if (isNaN(+id)) {
+        throw new Error('Id must be a number');
+      }
+      if (+id < 0) {
+        throw new Error('Id must be a positive number');
+      }
       return await this.ordersService.findOne(+id);
     } catch (error) {
       throw new HttpException(error.message, error.status || 400);
