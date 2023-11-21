@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -10,46 +10,70 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model Users {
-  id             Int       @default(autoincrement()) @id
-  email          String    @unique
-  password       String
-  full_name     String
-  cpf           String
-  phone_number   String
-  orders         Orders[]
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-}
 
-model Products {
-  id             Int       @default(autoincrement()) @id
-  name           String
-  photo          String
-  price          Float
-  order_items    OrderItems[]
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+model Users {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  name         String
+  document     String
+  phone_number String?
+  orders       Orders[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 }
 
 model Orders {
-  id             Int       @default(autoincrement()) @id
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  user           Users @relation(fields: [user_id], references: [id])
-  user_id        Int
-  items        OrderItems[]
+  id         String          @id @default(uuid())
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+  user       Users           @relation(fields: [user_id], references: [id])
+  user_id    String          @map("user_id")
+  products   OrderProducts[]
 }
 
-model OrderItems {
-  order           Orders @relation(fields: [order_id], references: [id])
-  order_id        Int @map("order_id")
-  product         Products @relation(fields: [product_id], references: [id])
-  product_id      Int @map("product_id")
-  quantity        Int? @default(1)
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+model OrderProducts {
+  order      Orders   @relation(fields: [order_id], references: [id])
+  order_id   String   @map("order_id")
+  product    Products @relation(fields: [product_id], references: [id])
+  product_id String   @map("product_id")
+  quantity   Int      @default(1)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@id([order_id, product_id])
   @@map("order_items")
+}
+
+model Products {
+  id          String              @id @default(uuid())
+  title       String
+  description String
+  image_url   String
+  price       Float
+  discount    Float @default(0)
+  weight      Float
+  order_items OrderProducts[]
+  categories  ProductCategories[]
+  created_at  DateTime            @default(now())
+  updated_at  DateTime            @updatedAt
+}
+
+model ProductCategories {
+  id          String     @id @default(uuid())
+  product     Products   @relation(fields: [product_id], references: [id])
+  product_id  String     @map("product_id")
+  category    Categories @relation(fields: [category_id], references: [id])
+  category_id String     @map("category_id")
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}
+
+model Categories {
+  id         String              @id @default(uuid())
+  title      String
+  image_url  String
+  products   ProductCategories[]
+  created_at DateTime            @default(now())
+  updated_at DateTime            @updatedAt
 }

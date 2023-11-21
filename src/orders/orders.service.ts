@@ -13,7 +13,7 @@ export class OrdersService {
       // verify if user exists
       const user = await this.prisma.users.findUnique({
         where: {
-          id: input.userId,
+          id: input.user,
         },
       });
 
@@ -24,7 +24,7 @@ export class OrdersService {
         });
       }
 
-      if (input.items?.length === 0) {
+      if (input.products?.length === 0) {
         throw new CustomError({
           message: 'You must provide at least one item',
           status: 400,
@@ -34,16 +34,16 @@ export class OrdersService {
       const products = await this.prisma.products.findMany({
         where: {
           id: {
-            in: input.items.map((item) => item.productId),
+            in: input.products.map((item) => item.id),
           },
         },
       });
 
-      if (products.length !== input.items.length) {
+      if (products.length !== input.products.length) {
         const foundProducts = products.map((product) => product.id);
-        const notFoundProducts = input.items
-          .map((item) => item.productId)
-          .filter((productId) => !foundProducts.includes(productId));
+        const notFoundProducts = input.products
+          .map((item) => item.id)
+          .filter((id) => !foundProducts.includes(id));
 
         throw new CustomError({
           message: `The following products were not found: ${notFoundProducts.join(
@@ -55,17 +55,17 @@ export class OrdersService {
 
       const response = await this.prisma.orders.create({
         data: {
-          items: {
+          products: {
             createMany: {
-              data: input.items.map((item) => ({
-                product_id: item.productId,
+              data: input.products.map((item) => ({
+                product_id: item.id,
                 quantity: item.quantity,
               })),
             },
           },
           user: {
             connect: {
-              id: input.userId,
+              id: input.user,
             },
           },
         },
@@ -105,7 +105,7 @@ export class OrdersService {
   async findAll() {
     return await this.prisma.orders.findMany({
       include: {
-        items: {
+        products: {
           include: {
             product: true,
           },
@@ -113,7 +113,7 @@ export class OrdersService {
         user: {
           select: {
             id: true,
-            full_name: true,
+            name: true,
             email: true,
           },
         },
@@ -121,12 +121,12 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     try {
       return await this.prisma.orders.findUniqueOrThrow({
         where: { id },
         include: {
-          items: true,
+          products: true,
           user: true,
         },
       });
@@ -139,15 +139,15 @@ export class OrdersService {
     }
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
+  update(id: string, updateOrderDto: UpdateOrderDto) {
     return this.prisma.orders.update({
       where: { id },
       data: {
-        items: {
+        products: {
           deleteMany: {},
           createMany: {
-            data: updateOrderDto.items.map((item) => ({
-              product_id: item.productId,
+            data: updateOrderDto.products.map((item) => ({
+              product_id: item.id,
               quantity: item.quantity,
             })),
           },
@@ -156,11 +156,11 @@ export class OrdersService {
     });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.prisma.orders.delete({
       where: { id },
       include: {
-        items: true,
+        products: true,
       },
     });
   }

@@ -1,10 +1,4 @@
-import {
-  IsAlpha,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUsersDto {
   @IsEmail()
@@ -17,15 +11,14 @@ export class CreateUsersDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsAlpha()
-  full_name: string;
+  name: string;
 
   @IsNotEmpty()
   @IsString()
   // @Matches(/\d{3}[\.]?\d{3}[\.]?\d{3}[\-]?\d{2}/)
-  cpf: string;
+  document: string;
 
-  @IsNotEmpty()
   @IsString()
-  phone_number: string;
+  @IsOptional()
+  phone_number?: string;
 }
