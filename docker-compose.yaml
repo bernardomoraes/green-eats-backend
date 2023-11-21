@@ -9,11 +9,9 @@ services:
   #     - green-eats
   #   hostname: green-eats.app
   #   container_name: ge_app
-  #   platform: linux/x86_64
+  #   platform: linux
   #   ports:
   #     - "3000:3000"
-  #   volumes:
-  #     - .:/home/node/app
   #   depends_on:
   #     db:
   #       condition: service_healthy

@@ -1,3 +1,16 @@
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+
+type orderItems = {
+  id: string;
+  quantity: number;
+};
+
 export class CreateOrderDto {
-  user: any;
+  @IsNotEmpty()
+  @IsString()
+  user: string;
+
+  @IsNotEmpty()
+  @IsArray()
+  products: orderItems[];
 }
