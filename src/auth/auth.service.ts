@@ -17,6 +17,8 @@ export class AuthService {
       where: { email },
     });
 
+    const { password: userPassword, ...safeUser } = userFound;
+
     if (!userFound) {
       throw new CustomError({
         message: 'User not found',
@@ -24,10 +26,7 @@ export class AuthService {
       });
     }
 
-    const passwordMatch = this.validateCredentials(
-      password,
-      userFound.password,
-    );
+    const passwordMatch = this.validateCredentials(password, userPassword);
 
     if (!passwordMatch) {
       throw new CustomError({
@@ -36,10 +35,13 @@ export class AuthService {
       });
     }
 
-    return this.jwtService.sign({
-      sub: userFound.id,
-      username: userFound.email,
-    });
+    return {
+      token: this.jwtService.sign({
+        sub: userFound.id,
+        username: userFound.email,
+      }),
+      ...safeUser,
+    };
   }
 
   async register(data: RegisterDto) {

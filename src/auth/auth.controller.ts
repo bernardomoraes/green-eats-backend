@@ -20,17 +20,12 @@ export class LoginController {
     try {
       console.log(body.email, body.password);
 
-      const authResponse = await this.authService.auth(
+      const { token, ...user } = await this.authService.auth(
         body.email,
         body.password,
       );
 
-      return res
-        .set('set-cookie', authResponse)
-        .json({
-          token: authResponse,
-        })
-        .send();
+      return res.set('set-cookie', token).json(user).send();
     } catch (error) {
       console.log(error?.log || error.message);
       throw new HttpException(error.message, error.status || 400);
