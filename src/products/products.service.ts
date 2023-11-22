@@ -9,7 +9,14 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
   create(createProductDto: CreateProductDto) {
     return this.prisma.products.create({
-      data: createProductDto,
+      data: {
+        ...createProductDto,
+        categories: {
+          connect: createProductDto.categories?.map((category) => ({
+            id: category,
+          })),
+        },
+      },
     });
   }
 
@@ -34,9 +41,20 @@ export class ProductsService {
   }
 
   update(id: string, updateProductDto: UpdateProductDto) {
+    const { categories, ...rest } = updateProductDto;
+    const updateData: Prisma.ProductsUpdateInput = rest;
+
+    if (categories && categories.length > 0) {
+      updateData.categories = {
+        set: updateProductDto.categories.map((category) => ({
+          id: category,
+        })),
+      };
+    }
+
     return this.prisma.products.update({
       where: { id },
-      data: updateProductDto,
+      data: updateData,
     });
   }
 
