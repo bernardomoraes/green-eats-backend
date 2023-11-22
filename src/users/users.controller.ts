@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create-users.dto';
@@ -37,8 +38,13 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUsersDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUsersDto) {
+    try {
+      return await this.usersService.update(id, updateUserDto);
+    } catch (error) {
+      console.log(error?.log || error.message);
+      throw new HttpException(error.message, error.status || 400);
+    }
   }
 
   @UseGuards(JwtGuard)

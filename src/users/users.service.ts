@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateUsersDto } from './dto/create-users.dto';
 import { UpdateUsersDto } from './dto/update-users.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CustomError } from 'src/exception/customError.exception';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -40,11 +42,34 @@ export class UsersService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUsersDto) {
-    return this.prisma.users.update({
-      where: { id },
-      data: updateUserDto,
-    });
+  async update(id: string, updateUserDto: UpdateUsersDto) {
+    try {
+      const response = await this.prisma.users.update({
+        where: { id },
+        data: updateUserDto,
+      });
+
+      return response;
+    } catch (e) {
+      console.log(JSON.stringify(e, null, 2));
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        console.log(e.code);
+        if (e.code === 'P2002') {
+          throw new CustomError({
+            status: 400,
+            message: `There is a unique constraint violation, this ${
+              e?.meta?.target[0] || 'body'
+            } is already in use`,
+          });
+        }
+        throw new CustomError({
+          status: 400,
+          message: (e.meta?.cause as string) || e.message || 'Unknown error',
+        });
+      }
+
+      throw e;
+    }
   }
 
   remove(id: string) {
