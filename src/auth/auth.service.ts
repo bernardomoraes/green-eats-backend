@@ -53,7 +53,7 @@ export class AuthService {
     if (userFound) {
       throw new CustomError({
         message: 'Email já cadastrado',
-        status: HttpStatus.CONFLICT,
+        status: HttpStatus.FORBIDDEN,
       });
     }
 
