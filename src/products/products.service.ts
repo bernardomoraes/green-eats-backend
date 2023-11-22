@@ -12,9 +12,20 @@ export class ProductsService {
       data: {
         ...createProductDto,
         categories: {
-          connect: createProductDto.categories?.map((category) => ({
-            id: category,
+          create: createProductDto.categories.map((categoryId) => ({
+            category: {
+              connect: {
+                id: categoryId,
+              },
+            },
           })),
+        },
+      },
+      include: {
+        categories: {
+          select: {
+            category: true,
+          },
         },
       },
     });
@@ -25,12 +36,19 @@ export class ProductsService {
     if (category) {
       filter.categories = {
         some: {
-          id: category,
+          category_id: category,
         },
       };
     }
     return this.prisma.products.findMany({
       where: filter,
+      include: {
+        categories: {
+          select: {
+            category: true,
+          },
+        },
+      },
     });
   }
 
