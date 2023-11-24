@@ -18,8 +18,6 @@ export class LoginController {
   @HttpCode(200)
   async login(@Body() body: LoginDto, @Response() res) {
     try {
-      console.log(body.email, body.password);
-
       const { token, ...user } = await this.authService.auth(
         body.email,
         body.password,
@@ -36,8 +34,6 @@ export class LoginController {
   @HttpCode(201)
   async signUp(@Body() body: RegisterDto) {
     try {
-      console.log(body.email, body.password);
-
       const registerResponse = await this.authService.register(body);
 
       return registerResponse;
